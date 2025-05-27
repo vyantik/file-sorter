@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -71,13 +72,7 @@ func moveOthersToFolder(sourcePath string, othersFolderName string, categorizedF
 		fileName := file.Name()
 		filePath := filepath.Join(sourcePath, fileName)
 
-		isCategorizedFolder := false
-		for _, catFolder := range categorizedFolders {
-			if fileName == catFolder {
-				isCategorizedFolder = true
-				break
-			}
-		}
+		isCategorizedFolder := slices.Contains(categorizedFolders, fileName)
 		if isCategorizedFolder {
 			continue
 		}
@@ -130,6 +125,25 @@ func main() {
 	folderPath := "C:\\Users\\vyantik\\Downloads"
 
 	folders := []string{"Executable", "Images", "Documents", "Audio", "Video", "Archives", "Code", "Others"}
+	extensions := make([][]string, 0)
+
+	extensions = append(extensions, []string{".exe", ".msi", ".dmg", ".app", ".deb", ".rpm", ".apk"})
+
+	extensions = append(extensions, []string{".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp", ".tiff", ".ico", ".svg", ".psd", ".ai"})
+
+	extensions = append(extensions, []string{".pdf", ".doc", ".docx", ".txt", ".rtf", ".xls", ".xlsx", ".ppt", ".pptx", ".odt", ".ods", ".odp"})
+
+	extensions = append(extensions, []string{".mp3", ".wav", ".m4a", ".ogg", ".flac", ".aac", ".wma", ".m4b"})
+
+	extensions = append(extensions, []string{".mp4", ".avi", ".mkv", ".mov", ".wmv", ".flv", ".mpeg", ".mpg", ".m4v", ".webm"})
+
+	extensions = append(extensions, []string{".zip", ".rar", ".7z", ".tar", ".gz", ".bz2", ".iso"})
+
+	extensions = append(extensions, []string{
+		".py", ".js", ".ts", ".go", ".java", ".cpp", ".h", ".c",
+		".css", ".html", ".php", ".sql", ".json", ".xml", ".yaml", ".yml",
+		".toml", ".conf", ".env", ".log", ".md",
+	})
 
 	var wg sync.WaitGroup
 
@@ -137,30 +151,10 @@ func main() {
 
 	timeStart := time.Now()
 
-	wg.Add(1)
-	go moveFilesToFolder(folderPath, folders[0], []string{".exe", ".msi", ".dmg", ".app", ".deb", ".rpm", ".apk"}, &wg)
-
-	wg.Add(1)
-	go moveFilesToFolder(folderPath, folders[1], []string{".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp", ".tiff", ".ico", ".svg", ".psd", ".ai"}, &wg)
-
-	wg.Add(1)
-	go moveFilesToFolder(folderPath, folders[2], []string{".pdf", ".doc", ".docx", ".txt", ".rtf", ".xls", ".xlsx", ".ppt", ".pptx", ".odt", ".ods", ".odp"}, &wg)
-
-	wg.Add(1)
-	go moveFilesToFolder(folderPath, folders[3], []string{".mp3", ".wav", ".m4a", ".ogg", ".flac", ".aac", ".wma", ".m4b"}, &wg)
-
-	wg.Add(1)
-	go moveFilesToFolder(folderPath, folders[4], []string{".mp4", ".avi", ".mkv", ".mov", ".wmv", ".flv", ".mpeg", ".mpg", ".m4v", ".webm"}, &wg)
-
-	wg.Add(1)
-	go moveFilesToFolder(folderPath, folders[5], []string{".zip", ".rar", ".7z", ".tar", ".gz", ".bz2", ".iso"}, &wg)
-
-	wg.Add(1)
-	go moveFilesToFolder(folderPath, folders[6], []string{
-		".py", ".js", ".ts", ".go", ".java", ".cpp", ".h", ".c",
-		".css", ".html", ".php", ".sql", ".json", ".xml", ".yaml", ".yml",
-		".toml", ".conf", ".env", ".log", ".md",
-	}, &wg)
+	for i := range extensions {
+		wg.Add(1)
+		go moveFilesToFolder(folderPath, folders[i], extensions[i], &wg)
+	}
 
 	wg.Wait()
 
