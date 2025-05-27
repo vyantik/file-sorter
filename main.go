@@ -145,6 +145,10 @@ func main() {
 		".toml", ".conf", ".env", ".log", ".md",
 	})
 
+	if len(extensions) != len(folders)-1 {
+		log.Fatal("ОШИБКА: количество расширений и папок не совпадает")
+	}
+
 	var wg sync.WaitGroup
 
 	log.Println("Запущена параллельная сортировка файлов...")
@@ -159,7 +163,7 @@ func main() {
 	wg.Wait()
 
 	wg.Add(1)
-	go moveOthersToFolder(folderPath, folders[7], folders, &wg)
+	go moveOthersToFolder(folderPath, folders[len(folders)-1], folders, &wg)
 
 	wg.Wait()
 
